@@ -1,0 +1,32 @@
+name: deploy-docs
+
+on:
+  push:
+    branches:
+    - main
+
+jobs:
+  deploy-book:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.12
+
+    - name: Install dependencies
+      run: |
+        pip install jupyter-book
+        pip install sphinx-tags
+    - name: Build the book
+      run: |
+        rm -rf docs/_tags/*
+        jupyter-book build docs
+    - name: Push docs book HTML to gh-pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs/_build/html
+        keep_files: true
